@@ -1,8 +1,10 @@
+import datetime
 import errno
 import os
 import random
 import socket
 import string
+import time
 
 DOMAIN = 'localhost'
 HOST = 'localhost'
@@ -15,7 +17,6 @@ server = (HOST, SOCKET)
 sock.bind(server)
 sock.listen(1)
 
-print('server has started')
 
 # setup
 try:
@@ -23,6 +24,10 @@ try:
 except OSError as exception:
     if exception.errno != errno.EEXIST:
         raise
+
+def log_to_stdout(message):
+    time_now = datetime.datetime.fromtimestamp(time.time()).strftime('%Y/%m/%d %H:%M:%S')
+    print('[%s] %s' % (time_now, message))
 
 def path_gen(slug):
     return STORE_DIR + '/' + slug
@@ -33,12 +38,14 @@ def slug_gen(size=6, chars=string.ascii_lowercase + string.digits):
         slug = slug_gen(6, chars)
     return slug
 
+log_to_stdout('Server has started')
+
 while True:
     connection, client_address = sock.accept()
     connection.settimeout(10)
 
     try:
-        print('receiving message from', client_address)
+        log_to_stdout('Receiving message from %s' % client_address)
         string = b''
 
         while True:
@@ -51,7 +58,7 @@ while True:
                 slug = slug_gen(SLUG_LEN)
                 with open(path_gen(slug), "wb") as out:
                     out.write(string)
-                print('file with length %d saved at %s' % (len(string), slug))
+                log_to_stdout('File with length %d saved at %s' % (len(string), slug))
                 connection.sendall(('http://%s/%s\n' % (DOMAIN, slug)).encode())
                 break
 
