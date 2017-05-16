@@ -1,3 +1,4 @@
+import config
 import datetime
 import errno
 import os
@@ -6,20 +7,14 @@ import re
 import socket
 import string
 
-DOMAIN = 'localhost'
-HOST = 'localhost'
-SOCKET = 10000
-STORE_DIR = './files'
-SLUG_LEN = 8
-
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-server = (HOST, SOCKET)
+server = (config.host, config.socket)
 sock.bind(server)
 sock.listen(1)
 
 # setup
 try:
-    os.makedirs(STORE_DIR)
+    os.makedirs(config.store_dir)
 except OSError as exception:
     if exception.errno != errno.EEXIST:
         raise
@@ -29,7 +24,7 @@ def log_to_stdout(message):
     print('[{0}] {1}'.format(time_now, message))
 
 def path_gen(slug):
-    return STORE_DIR + '/' + slug
+    return config.store_dir + '/' + slug
 
 def slug_gen(size=6, chars=string.ascii_lowercase + string.digits):
     slug = ''.join(random.choice(chars) for _ in range(size))
@@ -41,7 +36,7 @@ def save_file(slug, string):
     with open(path_gen(slug), "wb") as out:
         out.write(string)
 
-log_to_stdout('Server has started')
+log_to_stdout('Server has started at {0}:{1}'.format(config.host, config.socket))
 
 while True:
     connection, client_address = sock.accept()
@@ -65,10 +60,10 @@ while True:
                         connection.sendall(out.read().encode())
                 else:
                     # received end, save file, write path
-                    slug = slug_gen(SLUG_LEN)
+                    slug = slug_gen(config.slug_len)
                     save_file(slug, string)
                     log_to_stdout('File with length {0} saved at {1}'.format(len(string), slug))
-                    connection.sendall(('http://%s/%s\n' % (DOMAIN, slug)).encode())
+                    connection.sendall(('http://%s/%s\n' % (config.domain, slug)).encode())
                 break
 
     finally:
