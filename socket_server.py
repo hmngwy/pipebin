@@ -2,6 +2,7 @@ import datetime
 import errno
 import os
 import random
+import re
 import socket
 import string
 
@@ -36,6 +37,10 @@ def slug_gen(size=6, chars=string.ascii_lowercase + string.digits):
         slug = slug_gen(6, chars)
     return slug
 
+def save_file(slug, string):
+    with open(path_gen(slug), "wb") as out:
+        out.write(string)
+
 log_to_stdout('Server has started')
 
 while True:
@@ -52,12 +57,18 @@ while True:
                 # saving the chunk
                 string += data
             else:
-                # received end, save file, write path
-                slug = slug_gen(SLUG_LEN)
-                with open(path_gen(slug), "wb") as out:
-                    out.write(string)
-                log_to_stdout('File with length {0} saved at {1}'.format(len(string), slug))
-                connection.sendall(('http://%s/%s\n' % (DOMAIN, slug)).encode())
+                m = re.match(r'^/get ([a-zA-Z0-9]{8,})', string.encode())
+
+                if(m):
+                    slug = m.group(1)
+                    with open(path_gen(slug), "rb") as out:
+                        connection.sendall(out.read().encode())
+                else:
+                    # received end, save file, write path
+                    slug = slug_gen(SLUG_LEN)
+                    save_file(slug, string)
+                    log_to_stdout('File with length {0} saved at {1}'.format(len(string), slug))
+                    connection.sendall(('http://%s/%s\n' % (DOMAIN, slug)).encode())
                 break
 
     finally:
