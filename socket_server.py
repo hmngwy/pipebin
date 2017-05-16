@@ -25,7 +25,7 @@ except OSError as exception:
 
 def log_to_stdout(message):
     time_now = str(datetime.datetime.now()).split('.')[0]
-    print('[%s] %s' % (time_now, message))
+    print('[{0}] {1}'.format(time_now, message))
 
 def path_gen(slug):
     return STORE_DIR + '/' + slug
@@ -43,7 +43,7 @@ while True:
     connection.settimeout(10)
 
     try:
-        log_to_stdout('Receiving message from %s' % client_address)
+        log_to_stdout('Receiving message from {0}'.format(client_address))
         string = b''
 
         while True:
@@ -56,7 +56,7 @@ while True:
                 slug = slug_gen(SLUG_LEN)
                 with open(path_gen(slug), "wb") as out:
                     out.write(string)
-                log_to_stdout('File with length %d saved at %s' % (len(string), slug))
+                log_to_stdout('File with length {0} saved at {1}'.format(len(string), slug))
                 connection.sendall(('http://%s/%s\n' % (DOMAIN, slug)).encode())
                 break
 
