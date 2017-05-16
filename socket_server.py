@@ -4,7 +4,6 @@ import os
 import random
 import socket
 import string
-import time
 
 DOMAIN = 'localhost'
 HOST = 'localhost'
@@ -17,7 +16,6 @@ server = (HOST, SOCKET)
 sock.bind(server)
 sock.listen(1)
 
-
 # setup
 try:
     os.makedirs(STORE_DIR)
@@ -26,7 +24,7 @@ except OSError as exception:
         raise
 
 def log_to_stdout(message):
-    time_now = datetime.datetime.fromtimestamp(time.time()).strftime('%Y/%m/%d %H:%M:%S')
+    time_now = str(datetime.datetime.now()).split('.')[0]
     print('[%s] %s' % (time_now, message))
 
 def path_gen(slug):
@@ -49,7 +47,7 @@ while True:
         string = b''
 
         while True:
-            data = connection.recv(16)
+            data = connection.recv(256)
             if data:
                 # saving the chunk
                 string += data
