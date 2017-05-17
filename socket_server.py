@@ -1,6 +1,7 @@
 import config
 import datetime
 import errno
+import gnupg
 import os
 import random
 import re
@@ -11,6 +12,8 @@ sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server = (config.host, config.socket)
 sock.bind(server)
 sock.listen(1)
+
+gpg = gnupg.GPG(gnupghome=config.gpghome)
 
 # setup
 try:
