@@ -1,7 +1,6 @@
 import config
 import datetime
 import errno
-import gnupg
 import os
 import random
 import re
@@ -13,14 +12,14 @@ server = (config.host, config.socket)
 sock.bind(server)
 sock.listen(1)
 
-gpg = gnupg.GPG(gnupghome=config.gpghome)
-
 # setup
 try:
     os.makedirs(config.store_dir)
 except OSError as exception:
     if exception.errno != errno.EEXIST:
         raise
+textchars = bytearray({7,8,9,10,12,13,27} | set(range(0x20, 0x100)) - {0x7f})
+is_binary_string = lambda bytes: bool(bytes.translate(None, textchars))
 
 def log_to_stdout(message):
     time_now = str(datetime.datetime.now()).split('.')[0]
@@ -52,15 +51,16 @@ while True:
         while True:
             data = connection.recv(256)
             if data:
-                # saving the chunk
                 string += data
             else:
-                m = re.match(r'^/get ([a-zA-Z0-9]{8,})', string.encode())
+                plain = None
+                if not is_binary_string(string):
+                    read = re.match(r'^/get ([a-zA-Z0-9]{8,})', string.decode())
 
-                if(m):
-                    slug = m.group(1)
+                if read:
+                    slug = read.group(1)
                     with open(path_gen(slug), "rb") as out:
-                        connection.sendall(out.read().encode())
+                        connection.sendall(out.read())
                 else:
                     # received end, save file, write path
                     slug = slug_gen(config.slug_len)

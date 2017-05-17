@@ -5,7 +5,7 @@ A terminal pastebin clone that's ok with bytestrings. Inspired by termbin (fiche
   - [x] Socket server
   - [x] Read message over http
   - [x] Read message from socket
-  - [ ] Decrypt with GPG public key from keyserver
+  - [x] Decrypt with GPG key from keyserver over http
   - [ ] Parse as markdown web front-end
   - [ ] AES-CBC decryption web front-end
   - [ ] Syntax highlighter web front-end
