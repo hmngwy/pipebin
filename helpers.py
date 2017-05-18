@@ -4,6 +4,7 @@ import random
 import string
 import os
 import gnupg
+import shutil
 
 textchars = bytearray({7,8,9,10,12,13,27} | set(range(0x20, 0x100)) - {0x7f})
 is_binary_string = lambda bytes: bool(bytes.translate(None, textchars))
@@ -31,6 +32,6 @@ def create_gpg():
     open(gpghome + '/gpg.conf', 'a').close()
     os.chmod(gpghome + '/gpg.conf', 0o600)
     os.chmod(gpghome, 0o700)
-    gpg = gnupg.GPG(gnupghome = gpghome)
+    gpg = gnupg.GPG(gnupghome = gpghome, gpgbinary = shutil.which('gpg'))
     gpg.list_keys()
     return gpg, gpghome
