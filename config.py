@@ -6,6 +6,6 @@ store_dir = './files'
 slug_len = 8
 gpghome = '.gnupg'
 keyservers = {
-        'mit': 'hkp://pgp.mit.edu',
-        'sks': 'hkp://pool.sks-keyservers.net'
+        'sks': 'hkp://pool.sks-keyservers.net',
+        'mit': 'hkp://pgp.mit.edu'
         }

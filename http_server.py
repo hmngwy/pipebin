@@ -27,9 +27,9 @@ def home():
     message += 'http://{0}/de4dbe3f\n'.format(config.domain)
     message += '\n'
     message += '# verify or decrypt with remote gpg key in a browser\n'
-    message += 'http://{0}/gpg:(verify|decrypt):<keyserver>:16CHARACTERKEYID/d34db33f\n'.format(config.domain)
+    message += 'http://{0}/gpg:16CHARACTERKEYID[:<keyserver>]/d34db33f\n'.format(config.domain)
     message += '\n'
-    message += "# accepted keyservers are\n"
+    message += "# default is sks, accepted keyservers are\n"
     for key, value in config.keyservers.items():
         message += "  {0} - {1}\n".format(key, value)
     message += "  others - send a PR at github.com/hmngwy/pipebin"
@@ -46,8 +46,9 @@ def read(slug):
     else:
         abort(404)
 
-@app.route("/gpg:<action>:<keyserver>:<keyid>/<slug>")
-def decrypt(slug, keyserver, action, keyid):
+@app.route("/gpg:<keyid>/<slug>")
+@app.route("/gpg:<keyid>:<keyserver>/<slug>")
+def decrypt(slug, keyid, keyserver='sks', nosig=False):
     try:
         keyserver_full = config.keyservers[keyserver]
     except KeyError:
@@ -71,17 +72,15 @@ def decrypt(slug, keyserver, action, keyid):
             print(decrypted_data.ok)
 
             if decrypted_data.ok or decrypted_data.status == 'signature valid':
-                if action == 'decrypt':
+                if nosig == 'nosig': #this block currently unreachable, showing data without full sig info could be vulnerability
                     message = str(decrypted_data)
                     return Response(message, mimetype='text/plain')
-                elif action == 'verify':
+                else:
                     message = "{0} {1}\nFingerprint: {2}\nTrust Level: {3}\nTrust Text: {4}\nSignature ID: {5}\n".format(decrypted_data.username, decrypted_data.key_id, decrypted_data.fingerprint, decrypted_data.trust_level, decrypted_data.trust_text, decrypted_data.signature_id)
                     #message += "\nWithout Signature Data: http://{0}/gpg:{1}:decrypt:{2}/{3}\n".format(config.domain, keyserver, keyid, slug)
                     message += "\n----- Verification Time: " + str(datetime.datetime.now()).split('.')[0] + " -----\n"
                     message += "\n" + str(decrypted_data)
                     return Response(message, mimetype='text/plain')
-                else:
-                    abort(404)
             else:
                 abort(404)
     else:
