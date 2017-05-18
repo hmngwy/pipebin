@@ -12,14 +12,36 @@ A terminal pastebin clone that's ok with bytestrings. Inspired by termbin (fiche
 
 ### usage
 
-**Saving**
+**Writing**
 ```
 $ echo "message" | nc localhost 10000
 http://localhost/deadbeef
 ```
 
+Or
+
+```
+$ echo "hide me" | gpg --sign | nc localhost 10000
+http://localhost/de4dbe3f
+```
+
 **Reading**
+
+Curl or browser
+```
+$ curl -s http://localhost/deadbeef
+message
+```
+
+Over Netcat
 ```
 $ echo "/get deadbeef" | nc localhost 10000
 message
 ```
+
+**Decrypt and verify GPG signature on the browser**
+```
+http://localhost/gpg:16CHARACTERKEYID[:<keyserver>]/de4dbe3f
+```
+
+Where keyserver is optional or shorthand for hkp server host of public key, refer to config.py
