@@ -30,7 +30,8 @@ def home():
     message += 'http://{0}/gpg:(verify|decrypt):<keyserver>:16CHARACTERKEYID/d34db33f\n'.format(config.domain)
     message += '\n'
     message += "# accepted keyservers are\n"
-    message += "  mit - hkp://pgp.mit.edu\n"
+    for key, value in config.keyservers.items():
+        message += "  {0} - {1}\n".format(key, value)
     message += "  others - send a PR at github.com/hmngwy/pipebin"
 
     return Response(message, mimetype='text/plain')
