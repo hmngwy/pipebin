@@ -13,13 +13,14 @@ A terminal pastebin clone that's ok with bytestrings. Inspired by termbin (fiche
 ### usage
 
 **Writing**
+
+Cleartext
 ```
 $ echo "message" | nc localhost 10000
 http://localhost/deadbeef
 ```
 
-Or
-
+Encrypted and binary
 ```
 $ echo "hide me" | gpg --sign | nc localhost 10000
 http://localhost/de4dbe3f
@@ -33,7 +34,7 @@ $ curl -s http://localhost/deadbeef
 message
 ```
 
-Over Netcat
+Over netcat
 ```
 $ echo "/get deadbeef" | nc localhost 10000
 message
