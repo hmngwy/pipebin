@@ -33,7 +33,11 @@ def read(slug):
 
 @app.route("/gpg:<action>:<keyserver>:<keyid>/<slug>")
 def decrypt(slug, keyserver, action, keyid):
-    keyserver_full = config.keyservers[keyserver]
+    try:
+        keyserver_full = config.keyservers[keyserver]
+    except KeyError:
+        abort(404)
+
     gpg, gpg_homedir = helpers.create_gpg()
 
     try:
@@ -70,4 +74,4 @@ def decrypt(slug, keyserver, action, keyid):
         abort(404)
 
 if __name__ == "__main__":
-    app.run()
+    app.run(host=config.http_host)

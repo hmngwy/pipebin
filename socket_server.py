@@ -6,7 +6,7 @@ import socket
 import helpers
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-server = (config.host, config.socket)
+server = (config.socket_host, config.socket)
 sock.bind(server)
 sock.listen(1)
 
