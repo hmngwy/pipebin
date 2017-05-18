@@ -1,38 +1,11 @@
 from flask import Flask, Response, abort
 import config
-import gnupg
 import traceback
 import sys
-import string
-import random
-import os
 import shutil
+import helpers
 
 app = Flask(__name__)
-
-STORE_DIR = './files'
-
-textchars = bytearray({7,8,9,10,12,13,27} | set(range(0x20, 0x100)) - {0x7f})
-is_binary_string = lambda bytes: bool(bytes.translate(None, textchars))
-
-def slug_gen(size=6, chars=string.ascii_lowercase + string.digits):
-    slug = ''.join(random.choice(chars) for _ in range(size))
-    if os.path.exists(path_gen(slug)):
-        slug = slug_gen(6, chars)
-    return slug
-
-def path_gen(slug):
-    return STORE_DIR + '/' + slug
-
-def create_gpg():
-    gpghome = config.gpghome + '/' + slug_gen(4)
-    os.makedirs(gpghome)
-    open(gpghome + '/gpg.conf', 'a').close()
-    os.chmod(gpghome + '/gpg.conf', 0o600)
-    os.chmod(gpghome, 0o700)
-    gpg = gnupg.GPG(gnupghome = gpghome)
-    gpg.list_keys()
-    return gpg, gpghome
 
 @app.route("/")
 def home():
@@ -50,7 +23,7 @@ def home():
 def read(slug):
     with open(path_gen(slug), 'rb') as file:
         message = file.read();
-        is_binary = is_binary_string(message)
+        is_binary = helpers.is_binary_string(message)
     return Response(message, mimetype='octet-stream' if is_binary else 'text/plain')
 
 @app.route("/gpg:<keyserver>:<keyid>/<slug>")
