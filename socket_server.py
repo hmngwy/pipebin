@@ -32,7 +32,7 @@ while True:
             if data:
                 string += data
             else:
-                plain = None
+                read = None
                 if not helpers.is_binary_string(string):
                     read = re.match(r'^/get ([a-zA-Z0-9]{8,})', string.decode())
 
