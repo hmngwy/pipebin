@@ -18,13 +18,20 @@ def home():
     message += '$ echo "simple" | nc {0} {1}\n'.format(config.domain, config.socket_port)
     message += 'http://{0}/deadbeef\n'.format(config.domain)
     message += '\n'
-    message += '# send encrypted data as binary\n'
-    message += '$ ls -la | openssl enc -aes-256-cbc | nc {0} {1}\n'.format(config.domain, config.socket_port)
-    message += 'http://{0}/de4dbe3f\n'.format(config.domain)
-    message += '\n'
     message += '# read over netcat\n'
     message += '$ echo "/get deadbeef" | nc {0} {1}\n'.format(config.domain, config.socket_port)
     message += 'simple\n'
+    message += '\n'
+    message += '# send encrypted data as binary\n'
+    message += '$ echo "sign me" | gpg --sign | nc {0} {1}\n'.format(config.domain, config.socket_port)
+    message += 'http://{0}/de4dbe3f\n'.format(config.domain)
+    message += '\n'
+    message += '# verify or decrypt with remote gpg key in a browser\n'
+    message += 'http://{0}/gpg:(verify|decrypt):<keyserver>:16CHARACTERKEYID/d34db33f\n'.format(config.domain)
+    message += '\n'
+    message += "# accepted keyservers are\n"
+    message += "  mit - hkp://pgp.mit.edu\n"
+    message += "  others - send a PR at github.com/hmngwy/pipebin"
 
     return Response(message, mimetype='text/plain')
 
