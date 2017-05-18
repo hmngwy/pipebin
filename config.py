@@ -1,5 +1,5 @@
-domain = 'localhost'
-socket_host = 'localhost'
+domain = 'pipebin.org'
+socket_host = '0.0.0.0'
 http_host = '0.0.0.0'
 socket_port = 10000
 store_dir = './files'

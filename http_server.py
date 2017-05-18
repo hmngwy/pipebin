@@ -11,14 +11,21 @@ app = Flask(__name__)
 
 @app.route("/")
 def home():
-    message = '0x000\n'
+    message = '{0}\n'.format(config.domain)
     message += 'a bytestring safe terminal pastebin clone\n'
     message += '\n'
     message += '# send data\n'
-    message += '$ echo "simple" | nc pipebin.org 10000\n'
+    message += '$ echo "simple" | nc {0} {1}\n'.format(config.domain, config.socket_port)
+    message += 'http://{0}/deadbeef\n'.format(config.domain)
     message += '\n'
     message += '# send encrypted data as binary\n'
-    message += '$ ls -la | openssl enc -aes-256-cbc | nc pipebin.org 10000\n'
+    message += '$ ls -la | openssl enc -aes-256-cbc | nc {0} {1}\n'.format(config.domain, config.socket_port)
+    message += 'http://{0}/de4dbe3f\n'.format(config.domain)
+    message += '\n'
+    message += '# read over netcat\n'
+    message += '$ echo "/get deadbeef" | nc {0} {1}\n'.format(config.domain, config.socket_port)
+    message += 'simple\n'
+
     return Response(message, mimetype='text/plain')
 
 @app.route("/<slug>")

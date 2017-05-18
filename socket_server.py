@@ -6,7 +6,7 @@ import socket
 import helpers
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-server = (config.socket_host, config.socket)
+server = (config.socket_host, config.socket_port)
 sock.bind(server)
 sock.listen(1)
 
@@ -17,7 +17,7 @@ except OSError as exception:
     if exception.errno != errno.EEXIST:
         raise
 
-helpers.log_to_stdout('Server has started at {0}:{1}'.format(config.host, config.socket))
+helpers.log_to_stdout('Server has started at {0}:{1}'.format(config.socket_host, config.socket_port))
 
 while True:
     connection, client_address = sock.accept()
