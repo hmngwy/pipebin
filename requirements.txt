@@ -5,6 +5,7 @@ itsdangerous==0.24
 Jinja2==2.9.6
 MarkupSafe==1.0
 packaging==16.8
+pypandoc==1.4
 pyparsing==2.2.0
 python-gnupg==0.4.0
 six==1.10.0
