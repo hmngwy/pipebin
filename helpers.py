@@ -32,6 +32,6 @@ def create_gpg():
     open(gpghome + '/gpg.conf', 'a').close()
     os.chmod(gpghome + '/gpg.conf', 0o600)
     os.chmod(gpghome, 0o700)
-    gpg = gnupg.GPG(gnupghome = gpghome, gpgbinary = shutil.which('gpg'))
+    gpg = gnupg.GPG(gnupghome = gpghome, gpgbinary = str(shutil.which('gpg')))
     gpg.list_keys()
     return gpg, gpghome
