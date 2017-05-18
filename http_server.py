@@ -31,7 +31,7 @@ def read(slug):
     else:
         abort(404)
 
-@app.route("/gpg:<keyserver>:<action>:<keyid>/<slug>")
+@app.route("/gpg:<action>:<keyserver>:<keyid>/<slug>")
 def decrypt(slug, keyserver, action, keyid):
     keyserver_full = config.keyservers[keyserver]
     gpg, gpg_homedir = helpers.create_gpg()
