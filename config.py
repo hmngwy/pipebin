@@ -9,6 +9,3 @@ keyservers = {
         'sks': 'hkp://pool.sks-keyservers.net',
         'mit': 'hkp://pgp.mit.edu'
         }
-pandoc_formats = {
-        'md': 'md'
-        }

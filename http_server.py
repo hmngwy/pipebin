@@ -7,6 +7,7 @@ import helpers
 import os
 import datetime
 import pypandoc
+import io
 
 app = Flask(__name__)
 
@@ -38,21 +39,8 @@ def home():
     return Response(message, mimetype='text/plain')
 
 @app.route("/<slug>")
-def read(slug):
-    if os.path.isfile(helpers.path_gen(slug)):
-        with open(helpers.path_gen(slug), 'rb') as file:
-            message = file.read();
-            is_binary = helpers.is_binary_string(message)
-        return Response(message, mimetype='octet-stream' if is_binary else 'text/plain')
-    else:
-        abort(404)
-
-@app.route("/<slug>")
 @app.route("/gpg:<keyid>/<slug>")
 @app.route("/gpg:<keyid>:<keyserver>/<slug>")
-@app.route("/parse:<parse>/<slug>")
-@app.route("/gpg:<keyid>/parse:<parse>/<slug>")
-@app.route("/gpg:<keyid>:<keyserver>/parse:<parse>/<slug>")
 def decrypt(slug, keyid=None, keyserver='sks', nosig=False, parse=None):
 
     if os.path.isfile(helpers.path_gen(slug)):
@@ -62,15 +50,7 @@ def decrypt(slug, keyid=None, keyserver='sks', nosig=False, parse=None):
         if keyid is None:
             is_binary = helpers.is_binary_string(contents)
             mimetype = 'octet-stream' if is_binary else 'text/plain'
-            if parse is not None:
-                try:
-                    contents = pypandoc.convert_text(contents, 'html', format=config.pandoc_formats[parse])
-                    mimetype = 'text/html'
-                except RuntimeError:
-                    abort(501)
-                return Response(render_template('wrap.html', body = contents), mimetype='text/html')
-            else:
-                return Response(contents, mimetype=mimetype)
+            return Response(contents, mimetype=mimetype)
 
         elif keyid is not None:
 
@@ -94,29 +74,16 @@ def decrypt(slug, keyid=None, keyserver='sks', nosig=False, parse=None):
                 delete_result = gpg.delete_keys(import_result.fingerprints[0])
                 shutil.rmtree(gpg_homedir)
 
-                print(decrypted_data.status)
-                print(decrypted_data.ok)
-
                 if decrypted_data.ok or decrypted_data.status == 'signature valid':
                     sig_info = "{0} {1}\nFingerprint: {2}\nTrust Level: {3}\nTrust Text: {4}\nSignature ID: {5}\n".format(decrypted_data.username, decrypted_data.key_id, decrypted_data.fingerprint, decrypted_data.trust_level, decrypted_data.trust_text, decrypted_data.signature_id)
                     sig_info += "\n----- Verification Time: " + str(datetime.datetime.now()).split('.')[0] + " -----"
 
                     contents = str(decrypted_data)
+                    is_binary = helpers.is_binary_string(contents)
 
                     mimetype = 'text/plain'
 
-                    if parse is not None:
-                        try:
-                            sig_info = pypandoc.convert_text('~~~\n{0}\n~~~\n\n'.format(sig_info), 'html', format=config.pandoc_formats[parse])
-                            contents = pypandoc.convert_text(contents, 'html', format=config.pandoc_formats[parse])
-                            mimetype = 'text/html'
-                        except RuntimeError:
-                            abort(501)
-                        return Response(render_template('wrap.html', body = sig_info + contents), mimetype='text/html')
-                    else:
-                        message = sig_info + '\n\n' + contents
-                        return Response(message, mimetype=mimetype)
-
+                    return Response(sig_info + '\n\n' + contents, mimetype=mimetype)
 
                 else:
                     abort(404)
