@@ -6,8 +6,6 @@ import shutil
 import helpers
 import os
 import datetime
-import pypandoc
-import io
 
 app = Flask(__name__)
 
